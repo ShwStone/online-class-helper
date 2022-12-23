@@ -1,0 +1,17 @@
+#work-part {
+    text-align: center;
+}
+#button {
+    font-weight: bold;
+    font-size: 24px;
+}
+#name {
+    font-size: 24px;
+}
+.info {
+    font-size: 12px;
+    color: gray;
+}
+body {
+    background-color: #f8f9fa
+}

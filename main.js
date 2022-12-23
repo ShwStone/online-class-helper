@@ -1,15 +1,52 @@
-console.log(`欢迎来到 Electron`)
 const path = require('path');
+const {app, BrowserWindow, Menu, ipcMain, dialog} = require('electron')
+const XLSX = require('xlsx');
 
-const { app, BrowserWindow } = require('electron')
+let className = [];
+
+
 const creatWindow = () => {
     const win = new BrowserWindow({
-        width: 800,
-        height:600,
+        width: 450,
+        height: 250,
         webPreferences: {
             preload: path.join(__dirname, 'preload.js'),
         },
     });
+
+    const menu = Menu.buildFromTemplate([
+        {
+            label: '工具',
+            submenu: [
+            {
+                click: () => win.webContents.send('check'),
+                label: '签到',
+            },
+            {
+                click: () => win.webContents.send('changeFile'),
+                label: '选择班级',
+            },
+            {
+                click: () => {
+                    let filePath = dialog.showOpenDialogSync({ properties: ['openFile'] });
+                    if (filePath) {
+                        let workBook = XLSX.readFile(filePath[0])
+                        className = workBook.SheetNames;
+                        console.log(workBook.Sheets[className[0]]);
+                        // win.webContents.send('changeFile', filePath);
+                    }
+                },
+                label: '选择名单',
+            },
+            {
+                click: () => win.webContents.openDevTools(),
+                label: '开发者工具',
+            }
+            ]
+        }
+    ])
+    Menu.setApplicationMenu(menu)
+
     win.loadFile('index.html');
 }
 

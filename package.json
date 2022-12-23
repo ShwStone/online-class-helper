@@ -4,14 +4,14 @@
   "description": "",
   "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron ."
   },
   "author": "ShwStone",
   "license": "ISC",
-  "scripts": {
-    "start": "electron ."
-  },
   "devDependencies": {
     "electron": "^22.0.0"
+  },
+  "dependencies": {
+    "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
   }
 }
