@@ -1,8 +1,8 @@
 {
-  "name": "my-electron-app",
+  "name": "网课助手",
   "version": "1.0.0",
   "description": "",
-  "main": "main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "electron ."
   },
