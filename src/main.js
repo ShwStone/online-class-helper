@@ -72,7 +72,7 @@ const creatStatusWindow = () => {
         label: app.name,
         submenu: [
         {
-            click: () => shell.openExternal('https://github.com/ShwStone/onlineClassHelper'),
+            click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
             label: 'Github',
         },
         {
