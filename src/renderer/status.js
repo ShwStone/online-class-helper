@@ -9,10 +9,10 @@ fileStatus.style.color = 'red';
 
 let nameList = [];
 
-window.electronAPI.setFile(async (_event) => {
-    fileStatus.textContent = 'Excel名单已选择';
+window.electronAPI.setFile(async (event, classNameList, fileName) => {
+    fileStatus.textContent = 'Excel名单已选择：' + fileName;
     fileStatus.style.color = 'green';
-    classNameList = await window.electronAPI.getClassNameList();
+    classNameList.sort();
 
     let classHTML = "";
     for (let i = 0; i < classNameList.length; i++) {
@@ -24,7 +24,6 @@ window.electronAPI.setFile(async (_event) => {
     for (let i = 0; i < checkBox.length; i++) {
         checkBox[i].addEventListener('click', () => {
             window.electronAPI.changeClass(checkBox[i].value, checkBox[i].checked);
-            console.log(checkBox[i].value, checkBox[i].checked)
         })
     }
 })

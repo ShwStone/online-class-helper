@@ -7,7 +7,6 @@ contextBridge.exposeInMainWorld('versions', {
 });
 
 contextBridge.exposeInMainWorld('electronAPI', {
-    setFile: (callback) => ipcRenderer.on('setFile', callback),
-    getClassNameList: () => ipcRenderer.invoke('getClassNameList'),
+    setFile: (classNameList, fileName) => ipcRenderer.on('setFile', classNameList, fileName),
     changeClass: (className, checked) => ipcRenderer.send('changeClass', className, checked),
 });
