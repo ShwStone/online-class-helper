@@ -36,6 +36,7 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
     sonWindow.setMenu(menu);
     sonWindow.loadFile('src/html/' + name + '.html');
     sonWindow.once('ready-to-show', () => {
+        sonWindow.setIcon(path.join(__dirname, '../images/icon.png'));
         sonWindow.show();
     })
 }
@@ -132,6 +133,7 @@ const creatStatusWindow = () => {
 
     win.once('ready-to-show', () => {
         win.show();
+        win.setIcon(path.join(__dirname, '../images/icon.png'));
         try {
             filePath = String(fs.readFileSync('./config.txt'));
             parseExcel();
