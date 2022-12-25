@@ -13,7 +13,7 @@
 ```sh
 git clone https://github.com/ShwStone/onlineClassHelper
 npm install
-npm run start
+npm run dev
 ```
 
 暂时没有资源构建 releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
