@@ -17,3 +17,4 @@ npm run start
 ```
 
 或者查看 [release](https://github.com/ShwStone/onlineClassHelper/releases) 。下载并安装程序，然后运行即可。
+

@@ -1,6 +1,6 @@
 {
   "name": "网课助手",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "src/main.js",
   "scripts": {
@@ -9,12 +9,11 @@
   "author": "ShwStone",
   "license": "ISC",
   "devDependencies": {
-    "@electron-forge/cli": "^6.0.4",
     "electron": "^22.0.0"
   },
   "dependencies": {
     "fs": "^0.0.1-security",
-    "ini": "^3.0.1",
+    "path": "^0.12.7",
     "silly-datetime": "^0.1.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
   }

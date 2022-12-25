@@ -1,5 +1,5 @@
 const path = require('path');
-const {app, BrowserWindow, Menu, ipcMain, dialog, shell } = require('electron')
+const {app, BrowserWindow, Menu, ipcMain, dialog, shell, Tray } = require('electron')
 const XLSX = require('xlsx');
 const sd = require('silly-datetime');
 const fs = require('fs');
@@ -146,6 +146,24 @@ const creatStatusWindow = () => {
 app.whenReady().then(() => {
     creatStatusWindow();
 
+    let tray = new Tray(path.join(__dirname, '../images/icon.png'));
+    tray.setContextMenu(Menu.buildFromTemplate([
+    {
+        label: '打开',
+        click: () => {
+            if (BrowserWindow.getAllWindows().length === 0) {
+                creatStatusWindow();
+            } else {
+                win.focus();
+            }
+        },
+    },
+    {
+        label: '退出',
+        click: () => app.quit(),
+    }
+    ]))
+
     ipcMain.on('changeClass', (event, className, checked) => {
         classChosen.set(className, checked);
     });
@@ -188,10 +206,4 @@ app.whenReady().then(() => {
             createStatusWindow();
         }
     });
-});
-
-app.on('window-all-closed', () => {
-    if (process.platform !== 'darwin') {
-        app.quit();
-    }
 });
