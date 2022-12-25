@@ -11,12 +11,12 @@
 获取最新的版本：
 
 ```sh
-git clone https://github.com/ShwStone/onlineClassHelper
+git clone https://github.com/TianYuan-College/online-class-helper
 npm install
 npm run dev
 ```
 
-## [releases](https://github.com/ShwStone/onlineClassHelper/releases)
+## [releases](https://github.com/TianYuan-College/online-class-helper/releases)
 
 暂时只有 Linux releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
 
