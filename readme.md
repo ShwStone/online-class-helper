@@ -8,7 +8,7 @@
 
 ## 食用方法
 
-想获取最新的版本？
+获取最新的版本：
 
 ```sh
 git clone https://github.com/ShwStone/onlineClassHelper
@@ -16,5 +16,7 @@ npm install
 npm run start
 ```
 
-或者查看 [release](https://github.com/ShwStone/onlineClassHelper/releases) 。下载并安装程序，然后运行即可。
+暂时没有资源构建 releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
+
+如果你觉得不错，不妨点一个 Star 。
 
