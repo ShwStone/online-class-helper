@@ -1,17 +1,26 @@
 {
-  "name": "网课助手",
+  "name": "online-class-helper",
   "version": "1.0.1",
-  "description": "",
+  "description": "Make online class better.",
   "main": "src/main.js",
   "scripts": {
-    "dev": "electron ."
+    "dev": "electron .",
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make"
   },
   "author": "ShwStone",
   "license": "ISC",
   "devDependencies": {
+    "@electron-forge/cli": "^6.0.4",
+    "@electron-forge/maker-deb": "^6.0.4",
+    "@electron-forge/maker-rpm": "^6.0.4",
+    "@electron-forge/maker-squirrel": "^6.0.4",
+    "@electron-forge/maker-zip": "^6.0.4",
     "electron": "^22.0.0"
   },
   "dependencies": {
+    "electron-squirrel-startup": "^1.0.0",
     "fs": "^0.0.1-security",
     "path": "^0.12.7",
     "silly-datetime": "^0.1.2",

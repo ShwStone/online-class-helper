@@ -16,7 +16,9 @@ npm install
 npm run dev
 ```
 
-暂时没有资源构建 releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
+## [releases](https://github.com/ShwStone/onlineClassHelper/releases)
+
+暂时只有 Linux releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
 
 如果你觉得不错，不妨点一个 Star 。
 
