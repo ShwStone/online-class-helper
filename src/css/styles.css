@@ -15,6 +15,17 @@
 body {
     background-color: #f8f9fa
 }
+.sct {
+    border: 2px solid #0099CC;
+    background: transparent;
+    /* 给边框添加圆角 */
+    border-radius: 6px;
+    background-color: white;
+    color: black;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 6px 6px;
+}
 .btn {
     border: 2px solid #0099CC;
     background: transparent;
@@ -24,6 +35,7 @@ body {
     color: black;
     font-size: 18px;
 /*     font-weight: bold; */
+    padding: 6px 6px;
 }
 /* 悬停样式 */
 .btn:hover {

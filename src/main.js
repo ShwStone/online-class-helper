@@ -23,7 +23,7 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
         label: app.name,
         submenu: [
         {
-            click: () => shell.openExternal('https://github.com/ShwStone/onlineClassHelper'),
+            click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
             label: 'Github',
         },
         {
@@ -123,6 +123,10 @@ const creatStatusWindow = () => {
                     creatSonWindow(win, 'rand-name', 400, 250);
                 }
             },
+        },
+        {
+            label: '倒计时',
+            click: () => creatSonWindow(win, 'remain-time', 400, 250),
         }
         ]
     }
@@ -199,6 +203,10 @@ app.whenReady().then(() => {
             XLSX.writeFile(excelFile, filePath, {bookType: path.extname(filePath).substring(1)});
         }
         return absentList;
+    });
+
+    ipcMain.on('timeIsUp', (event) => {
+        dialog.showMessageBox({message: '倒计时结束！'});
     });
 
     app.on('activate', () => {

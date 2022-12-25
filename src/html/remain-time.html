@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <meta
+      http-equiv="X-Content-Security-Policy"
+      content="default-src 'self'; script-src 'self'"
+    />
+    <link rel="stylesheet" href="../css/styles.css">
+    <title>网课助手-倒计时</title>
+  </head>
+  <body>
+    <div id='work-part'>
+      <p class='title'>倒计时<select class='sct' id='minute'></select>分<select class='sct' id='second'></select>秒</p>
+      <p class='title' id='remain'></p>
+      <p><button class='btn' id='start'>开始</button><button class='btn' id='pse'>暂停</button><button class='btn' id='continue'>继续</button><button class='btn' id='reset'>重置</button></p>
+    </div>
+  </body>
+  <script src="../renderer/remain-time.js"></script>
+</html>
