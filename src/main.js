@@ -3,12 +3,15 @@ const {app, BrowserWindow, Menu, ipcMain, dialog, shell, Tray } = require('elect
 const XLSX = require('xlsx');
 const sd = require('silly-datetime');
 const fs = require('fs');
+const ini = require('ini');
 
 let classChosen = new Map(), studentAttend = new Set();
 
 let excelFile = null, classSheetMap = new Map(), filePath = '', win = null;
 
 let closeToTray = true;
+
+let config = null;
 
 async function creatSonWindow(father, name, width = undefined, height = undefined) {
     const sonWindow = new BrowserWindow({
@@ -43,11 +46,9 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
     })
 }
 
-function parseExcel() {
+function parseExcel(init = false) {
     classChosen.clear(); studentAttend.clear(); classSheetMap.clear();
     excelFile = XLSX.readFile(filePath);
-    //显示文件读取成功
-    win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath));
 
     for (const sheetName of excelFile.SheetNames) {
         const sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
@@ -57,6 +58,36 @@ function parseExcel() {
         }
         classChosen.set(sheetName, false);
     }
+
+    //显示文件读取成功
+    win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
+}
+
+function initIni() {
+    let tmpFile = null;
+    try {
+        tmpFile = fs.readFileSync('./config.ini', 'utf-8');
+    } catch {
+        fs.writeFileSync('./config.ini', '');
+        tmpFile = fs.readFileSync('./config.ini', 'utf-8');
+    }
+    config = ini.parse(tmpFile);
+    //Tray的构建依赖于closeToTray
+    if (config.closeToTray !== undefined) {
+        closeToTray = config.closeToTray;
+    }
+}
+
+function writeFiles() {
+    let tmp = excelFile.SheetNames;
+    tmp.sort();
+    config.classChosen = [];
+    for (const name of tmp) {
+        config.classChosen.push(classChosen.get(name));
+    }
+    config.closeToTray = closeToTray;
+    fs.writeFileSync('./config.ini', ini.stringify(config));
+    XLSX.writeFile(excelFile, filePath, {bookType: path.extname(filePath).substring(1)});
 }
 
 const creatStatusWindow = () => {
@@ -94,7 +125,7 @@ const creatStatusWindow = () => {
                 });
                 if (!canceled && filePaths[0] != filePath) {
                     filePath = filePaths[0];
-                    fs.writeFileSync('./config.txt', filePath);
+                    config.filePath = filePaths[0];
                     parseExcel();
                 }
             },
@@ -140,14 +171,21 @@ const creatStatusWindow = () => {
     win.once('ready-to-show', () => {
         win.show();
         win.setIcon(path.join(__dirname, '../images/icon.png'));
-        try {
-            filePath = String(fs.readFileSync('./config.txt'));
+
+        if (config.filePath) {
+            filePath = config.filePath;
             parseExcel();
-        } catch {
-            fs.writeFileSync('./config.txt', '');
+            let tmp = excelFile.SheetNames;
+            tmp.sort();
+            for (const i in tmp) {
+                classChosen.set(tmp[i], config.classChosen[i]);
+            }
+            win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
         }
     });
 
+    //托盘事件
+    //也可以监听 app 中的 'will-quit' ，但是那样需要在重新启动的时候新建窗口
     win.on('close', (event) => {
         if (closeToTray) {
             event.preventDefault();
@@ -159,6 +197,7 @@ const creatStatusWindow = () => {
 
 app.whenReady().then(() => {
     creatStatusWindow();
+    initIni();
 
     let tray = new Tray(path.join(__dirname, '../images/icon.png'));
     tray.setContextMenu(Menu.buildFromTemplate([
@@ -171,13 +210,16 @@ app.whenReady().then(() => {
     },
     {
         label: '退出',
-        click: () => app.quit(),
+        click: () => {
+            writeFiles();
+            app.exit();
+        }
     },
     {
         label: '最小化到托盘',
         type: 'checkbox',
-        checked: true,
-        click: () => closeToTray ^= 1,
+        checked: closeToTray,
+        click: () => closeToTray = !closeToTray,
     }
     ]))
 
@@ -213,7 +255,6 @@ app.whenReady().then(() => {
                 tmp[i].push(sd.format(new Date(), 'MM-DD HH:mm'));
             }
             excelFile.Sheets[className] = XLSX.utils.aoa_to_sheet(tmp);
-            XLSX.writeFile(excelFile, filePath, {bookType: path.extname(filePath).substring(1)});
         }
         return absentList;
     });
@@ -227,4 +268,8 @@ app.whenReady().then(() => {
             createStatusWindow();
         }
     });
+
+    app.on('quit', (event, exitCode) => {
+
+    })
 });

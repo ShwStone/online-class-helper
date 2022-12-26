@@ -9,14 +9,19 @@ fileStatus.style.color = 'red';
 
 let nameList = [];
 
-window.electronAPI.setFile(async (event, classNameList, fileName) => {
+window.electronAPI.setFile(async (event, classNameList, fileName, classChosen) => {
     fileStatus.textContent = 'Excel名单已选择：' + fileName;
     fileStatus.style.color = 'green';
     classNameList.sort();
 
     let classHTML = "";
-    for (let i = 0; i < classNameList.length; i++) {
-        classHTML += "<p><input type='checkbox' name='checkBox' value='" + classNameList[i] + "'>" + classNameList[i] + "</p>";
+    for (const name of classNameList) {
+        classHTML += `<p><input type='checkbox' name='checkBox'`;
+        //大坑，checked设置过就会为true,不管设置了什么值
+        if (classChosen.get(name)) {
+            classHTML += 'checked=1';
+        }
+        classHTML += `value='${name}'> ${name} </p>`;
     }
     classes.innerHTML = classHTML;
 

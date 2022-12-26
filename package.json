@@ -22,6 +22,7 @@
   "dependencies": {
     "electron-squirrel-startup": "^1.0.0",
     "fs": "^0.0.1-security",
+    "ini": "^3.0.1",
     "path": "^0.12.7",
     "silly-datetime": "^0.1.2",
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.1/xlsx-0.19.1.tgz"
