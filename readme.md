@@ -13,7 +13,7 @@
 ```sh
 git clone https://github.com/TianYuan-College/online-class-helper
 npm install
-npm run dev
+npm run start
 ```
 
 ## [releases](https://github.com/TianYuan-College/online-class-helper/releases)
@@ -28,3 +28,16 @@ npm run dev
 
 路过的大佬：在 master 上提交 PR。
 
+### 构建软件包
+
+默认方法：
+
+```sh
+npm run dev
+```
+
+跨平台构建：
+
+```sh
+npm run make -- --platform target-platform
+```
