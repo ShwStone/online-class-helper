@@ -13,12 +13,12 @@
 ```sh
 git clone https://github.com/TianYuan-College/online-class-helper
 npm install
-npm run start
+npm run dev
 ```
 
 ## [releases](https://github.com/TianYuan-College/online-class-helper/releases)
 
-暂时只有 Linux releases ，因为我没有 Windows 或 MacOS 系统，也跑不动虚拟机。（我想不会有老师用 Linux 吧）
+下载安装包进行安装，或者直接下载并解压 `zip` 文件，然后运行 `online-class-helper`。
 
 如果你觉得不错，不妨点一个 Star 。
 
@@ -33,7 +33,7 @@ npm run start
 默认方法：
 
 ```sh
-npm run dev
+npm run make
 ```
 
 跨平台构建：
