@@ -28,6 +28,10 @@ npm run dev
 
 路过的大佬：在 master 上提交 PR。
 
+### 遵循的规则
+
+不要使用 remote 模块。它yi b
+
 ### 构建软件包
 
 默认方法：
