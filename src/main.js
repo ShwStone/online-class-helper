@@ -8,6 +8,8 @@ let classChosen = new Map(), studentAttend = new Set();
 
 let excelFile = null, classSheetMap = new Map(), filePath = '', win = null;
 
+let closeToTray = true;
+
 async function creatSonWindow(father, name, width = undefined, height = undefined) {
     const sonWindow = new BrowserWindow({
         width: width,
@@ -144,7 +146,15 @@ const creatStatusWindow = () => {
         } catch {
             fs.writeFileSync('./config.txt', '');
         }
-    })
+    });
+
+    win.on('close', (event) => {
+        if (closeToTray) {
+            event.preventDefault();
+            win.setSkipTaskbar(true);
+            win.hide();
+        }
+    });
 }
 
 app.whenReady().then(() => {
@@ -155,16 +165,19 @@ app.whenReady().then(() => {
     {
         label: '打开',
         click: () => {
-            if (BrowserWindow.getAllWindows().length === 0) {
-                creatStatusWindow();
-            } else {
-                win.focus();
-            }
+            win.show();
+            win.setSkipTaskbar(false);
         },
     },
     {
         label: '退出',
         click: () => app.quit(),
+    },
+    {
+        label: '最小化到托盘',
+        type: 'checkbox',
+        checked: true,
+        click: () => closeToTray ^= 1,
     }
     ]))
 
