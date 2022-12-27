@@ -6,7 +6,7 @@ const fs = require('fs');
 const ini = require('ini');
 
 let classChosen = new Map(), studentAttend = new Set();
-let groupIndex = -1, studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
+let groupIndex = new Map(), studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
 let excelFile = null, classSheetMap = new Map(), filePath = null, win = null;
 let closeToTray = true;
 let config = null;
@@ -52,14 +52,9 @@ function parseExcel() {
             const sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
             classSheetMap.set(sheetName, sheetAoa);
 
-            groupIndex = sheetAoa[0].indexOf('小组');
+            groupIndex.set(sheetName, sheetAoa[0].indexOf('小组'));
             for (const lst of sheetAoa) if (lst[0] !== '姓名') {
                 studentAttend.add(lst[0]);
-                if (groupIndex != -1) {
-                    studentGroup.set(lst[0], lst[groupIndex]);
-                    groupScore.set(lst[groupIndex], 0);
-                    studentScore.set(lst[0], 0);
-                }
             }
             classChosen.set(sheetName, false);
         }
@@ -69,7 +64,6 @@ function parseExcel() {
         }
         //显示文件读取成功
         win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
-        win.webContents.send('changeGroup', groupScore);
         return false;
     } catch {
         dialog.showMessageBox({message: '意外的文件错误：打开名单时出错'});
@@ -263,6 +257,17 @@ app.whenReady().then(() => {
 
     ipcMain.on('changeClass', (event, className, checked) => {
         classChosen.set(className, checked);
+        if (groupIndex.get(className) != -1) {
+            for (const lst of classSheetMap.get(className)) {
+                if (lst[0] == '姓名') continue;
+                if (checked) {
+                    groupScore.set(lst[groupIndex.get(className)], 0);
+                } else {
+                    groupScore.delete(lst[groupIndex.get(className)]);
+                }
+            }
+            win.webContents.send('changeGroup', groupScore);
+        }
     });
 
     ipcMain.handle('randStudent', async (event) => {
@@ -273,6 +278,23 @@ app.whenReady().then(() => {
             const tmp = Array.from(studentAttend);
             return tmp[Math.floor(tmp.length * Math.random())];
         }
+    });
+
+    ipcMain.handle('getGroup', async (event) => {
+        let groupStudent = new Map();
+        for (const className of classChosen.keys()) if (classChosen.get(className)) {
+            let gid = groupIndex.get(className);
+            for (const lst of classSheetMap.get(className)) if (lst[0] != '姓名') {
+                if (gid != -1) {
+                    if (!groupStudent.has(lst[gid])) groupStudent.set(lst[gid], new Set());
+                    groupStudent.get(lst[gid]).add(lst[0]);
+                } else {
+                    if (!groupStudent.has('未设置分组的学生')) groupStudent.set('未设置分组的学生', new Set());
+                    groupStudent.get('未设置分组的学生').add(lst[0]);
+                }
+            }
+        }
+        return groupStudent;
     });
 
     ipcMain.handle('checkStudent', async (event, checkInfo) => {

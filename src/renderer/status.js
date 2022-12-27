@@ -1,5 +1,5 @@
 const information = document.getElementById('info');
-information.textContent = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`;
+information.innerHTML = `本应用正在使用 Chrome (v${versions.chrome()}), Node.js (v${versions.node()}), 和 Electron (v${versions.electron()})`;
 
 const fileStatus = document.getElementById('fileStatus');
 const classes = document.getElementById('classes');
@@ -17,12 +17,14 @@ window.electronAPI.setFile(async (event, classNameList, fileName, classChosen) =
 
     let classHTML = "";
     for (const name of classNameList) {
-        classHTML += `<p><input type='checkbox' name='checkBox'`;
+        classHTML += `<input type='checkbox' name='checkBox' `;
         //大坑，checked设置过就会为true,不管设置了什么值
         if (classChosen.get(name)) {
             classHTML += 'checked=1';
+            window.electronAPI.changeClass(name, true);
         }
-        classHTML += `value='${name}'> ${name} </p>`;
+        //注意value前面的空格
+        classHTML += ` value=${name}> ${name} </br>`;
     }
     classes.innerHTML = classHTML;
 
@@ -38,18 +40,15 @@ window.electronAPI.changeGroup(async (event, groupScore) => {
     let groupHTML = '';
     let groupScoreList = Array.from(groupScore);
     for (const lst of groupScoreList) {
-        groupHTML += `<p>${lst[0]}：${lst[1]}分<button class='btn' name='plus'>+1</button><button class='btn' name='minus'>-1</button></p>`;
+        groupHTML += `${lst[0]}：${lst[1]}分 <button name='plus' class='smallbtn'>+1</button> <button name='minus' class='smallbtn'>-1</button></br>`;
     }
     groups.innerHTML = groupHTML;
 
     let plusButton = document.getElementsByName('plus');
-    console.log(plusButton.length);
     for (let i = 0; i < plusButton.length; i++) {
         plusButton[i].addEventListener('click', () => {
-            console.log(1);
             window.electronAPI.addScore(groupScoreList[i][0], 1);
         });
-        console.log(plusButton[i]);
     }
 
     let minusButton = document.getElementsByName('minus');
