@@ -46,6 +46,10 @@ npm run dev
 
 ### 构建软件包
 
+注意，如果你执行过 `npm run dev` 或 `npm run start` ，工作目录下会有 `config.ini` 生成，打包时它将会被一起打包。
+
+你应该删除 `config.ini` 后再进行构建。
+
 默认方法：
 
 ```sh
