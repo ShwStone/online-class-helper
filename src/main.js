@@ -7,7 +7,7 @@ const ini = require('ini');
 
 let classChosen = new Map(), studentAttend = new Set();
 
-let excelFile = null, classSheetMap = new Map(), filePath = '', win = null;
+let excelFile = null, classSheetMap = new Map(), filePath = null, win = null;
 
 let closeToTray = true;
 
@@ -79,15 +79,17 @@ function initIni() {
 }
 
 function writeFiles() {
-    let tmp = excelFile.SheetNames;
-    tmp.sort();
     config.classChosen = [];
-    for (const name of tmp) {
-        config.classChosen.push(classChosen.get(name));
+    if (filePath) {
+        let tmp = excelFile.SheetNames;
+        tmp.sort();
+        for (const name of tmp) {
+            config.classChosen.push(classChosen.get(name));
+        }
+        XLSX.writeFile(excelFile, filePath, {bookType: path.extname(filePath).substring(1)});
     }
     config.closeToTray = closeToTray;
     fs.writeFileSync('./config.ini', ini.stringify(config));
-    XLSX.writeFile(excelFile, filePath, {bookType: path.extname(filePath).substring(1)});
 }
 
 const creatStatusWindow = () => {
@@ -174,13 +176,18 @@ const creatStatusWindow = () => {
 
         if (config.filePath) {
             filePath = config.filePath;
-            parseExcel();
-            let tmp = excelFile.SheetNames;
-            tmp.sort();
-            for (const i in tmp) {
-                classChosen.set(tmp[i], config.classChosen[i]);
+            try {
+                parseExcel();
+                let tmp = excelFile.SheetNames;
+                tmp.sort();
+                for (const i in tmp) {
+                    classChosen.set(tmp[i], config.classChosen[i]);
+                }
+                win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
+            } catch {
+                filePath = null;
+                config.filePath = null;
             }
-            win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
         }
     });
 
@@ -270,6 +277,6 @@ app.whenReady().then(() => {
     });
 
     app.on('quit', (event, exitCode) => {
-
+        writeFiles();
     })
 });
