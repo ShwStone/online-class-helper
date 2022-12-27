@@ -6,11 +6,9 @@ const fs = require('fs');
 const ini = require('ini');
 
 let classChosen = new Map(), studentAttend = new Set();
-
+let groupIndex = -1, studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
 let excelFile = null, classSheetMap = new Map(), filePath = null, win = null;
-
 let closeToTray = true;
-
 let config = null;
 
 async function creatSonWindow(father, name, width = undefined, height = undefined) {
@@ -46,21 +44,37 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
     })
 }
 
-function parseExcel(init = false) {
+function parseExcel() {
     classChosen.clear(); studentAttend.clear(); classSheetMap.clear();
-    excelFile = XLSX.readFile(filePath);
+    try {
+        excelFile = XLSX.readFile(filePath);
+        for (const sheetName of excelFile.SheetNames) {
+            const sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
+            classSheetMap.set(sheetName, sheetAoa);
 
-    for (const sheetName of excelFile.SheetNames) {
-        const sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
-        classSheetMap.set(sheetName, sheetAoa);
-        for (const lst of sheetAoa) if (lst[0] !== '姓名') {
-            studentAttend.add(lst[0]);
+            groupIndex = sheetAoa[0].indexOf('小组');
+            for (const lst of sheetAoa) if (lst[0] !== '姓名') {
+                studentAttend.add(lst[0]);
+                if (groupIndex != -1) {
+                    studentGroup.set(lst[0], lst[groupIndex]);
+                    groupScore.set(lst[groupIndex], 0);
+                    studentScore.set(lst[0], 0);
+                }
+            }
+            classChosen.set(sheetName, false);
         }
-        classChosen.set(sheetName, false);
+        //关闭已有的子窗口，防止数据混乱
+        for (const tmp of BrowserWindow.getAllWindows()) if (tmp.id != win.id) {
+            tmp.close();
+        }
+        //显示文件读取成功
+        win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
+        win.webContents.send('changeGroup', groupScore);
+        return false;
+    } catch {
+        dialog.showMessageBox({message: '意外的文件错误：打开名单时出错'});
+        return true;
     }
-
-    //显示文件读取成功
-    win.webContents.send('setFile', excelFile.SheetNames, path.basename(filePath), classChosen);
 }
 
 function initIni() {
@@ -117,7 +131,7 @@ const creatStatusWindow = () => {
         ]
     },
     {
-        label: '名单',
+        label: '学生',
         submenu: [
         {
             click: async () => {
@@ -126,23 +140,39 @@ const creatStatusWindow = () => {
                     filters: [{ name: 'Excel文件', extensions: ['xlsx', 'xls', 'ods']}]
                 });
                 if (!canceled && filePaths[0] != filePath) {
+                    writeFiles();
+                    let tPath = filePath;
                     filePath = filePaths[0];
                     config.filePath = filePaths[0];
-                    parseExcel();
+                    //错误处理
+                    if (parseExcel()) {
+                        filePath = tPath;
+                        config.filePath = tPath;
+                    }
                 }
             },
-            label: '选择名单',
+            label: '选择学生名单',
+        },
+        {
+            label: '学生分组',
+            click: async () => {
+                if (excelFile === null) {
+                    await dialog.showMessageBox({message: '请先选择学生名单'});
+                } else {
+                    creatSonWindow(win, 'group');
+                }
+            },
         }
         ]
     },
     {
-        label: '功能',
+        label: '课堂',
         submenu: [
         {
             label: '签到',
             click: async () => {
                 if (excelFile === null) {
-                    await dialog.showMessageBox({message: '请先选择Excel名单'});
+                    await dialog.showMessageBox({message: '请先选择学生名单'});
                 } else {
                     creatSonWindow(win, 'check');
                 }
@@ -152,7 +182,7 @@ const creatStatusWindow = () => {
             label: '随机点名',
             click: async () => {
                 if (excelFile === null) {
-                    await dialog.showMessageBox({message: '请先选择Excel名单'});
+                    await dialog.showMessageBox({message: '请先选择学生名单'});
                 }
                 else {
                     creatSonWindow(win, 'rand-name', 400, 250);
@@ -174,6 +204,7 @@ const creatStatusWindow = () => {
         win.show();
         win.setIcon(path.join(__dirname, '../images/icon.png'));
 
+        //initExcelFile
         if (config.filePath) {
             filePath = config.filePath;
             try {
@@ -270,6 +301,11 @@ app.whenReady().then(() => {
         dialog.showMessageBox({message: '倒计时结束！'});
     });
 
+    ipcMain.on('addScore', (event, group, score) => {
+        groupScore.set(group, groupScore.get(group) + score);
+        win.webContents.send('changeGroup', groupScore);
+    });
+
     app.on('activate', () => {
         if (BrowserWindow.getAllWindows().length === 0) {
             createStatusWindow();
@@ -278,5 +314,5 @@ app.whenReady().then(() => {
 
     app.on('quit', (event, exitCode) => {
         writeFiles();
-    })
+    });
 });

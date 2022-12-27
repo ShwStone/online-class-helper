@@ -1,0 +1,2 @@
+groups = document.getElementById('groups');
+
