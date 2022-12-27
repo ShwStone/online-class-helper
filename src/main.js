@@ -283,12 +283,12 @@ app.whenReady().then(() => {
             for (let i in tmp) if (tmp[i][0] !== '姓名') {
                 if (checkInfo.indexOf(tmp[i][0]) === -1) {
                     studentAttend.delete(tmp[i][0]);
-                    absentList.push(tmp[i][0]);
                     tmp[i].push('未到');
                 } else {
                     studentAttend.add(tmp[i][0]);
                     tmp[i].push('已到');
                 }
+                absentList.push([tmp[i][0], (checkInfo.match(RegExp(tmp[i][0], 'g')) || []).length]);
             } else {
                 tmp[i].push(sd.format(new Date(), 'MM-DD HH:mm'));
             }
