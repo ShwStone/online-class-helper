@@ -5,34 +5,53 @@ async function main() {
     groupStudent = await window.electronAPI.getGroup();
 }
 
-let id = 1;
-let dragged = null, fromGroup = null;
-
 main().then(() => {groups.innerHTML = '';
+    let id = 1;
+    // let tmpList = [];
+    /*
+     * 重要提示，以后写代码一定要注意：
+     * 在修改 innerHTML 时，自己所有的孩子元素将会全部被重置，先前设置的EventListener将会失效。所以务必先渲染HTML再编写JavaScript.
+     * 就这个鬼bug修了我三天
+     *
+     */
     for (const key of groupStudent.keys()) {
-        groups.innerHTML += `第${id}组：<input class='smallentry' value=${key} name='groupName'></br><div id=${key}></div>`;
+        groups.innerHTML += `第${id}组：<input class='smallentry' value=${key} name='groupName'></br><div id=${key} class='group'></div>`;
         const thisGroup = document.getElementById(key);
+        for (const name of groupStudent.get(key).values()) {
+            thisGroup.innerHTML += `<div id=${name} draggable='true' class='name'>${name}</div>`;
+        }
+        thisGroup.innerHTML += `<br/>`;
+        id++;
+    }
+    for (const key of groupStudent.keys()) {
+        const thisGroup = document.getElementById(key);
+        thisGroup.addEventListener('dragenter', (event) => {
+            event.target.style.backgroundColor = 'lightblue';
+            event.preventDefault();
+        });
         thisGroup.addEventListener("dragover", (event) => {
+            event.preventDefault();
+        });
+        thisGroup.addEventListener('dragleave', (event) => {
+            event.target.style.backgroundColor = 'transparent';
             event.preventDefault();
         });
         thisGroup.addEventListener("drop", (event) => {
             event.preventDefault();
-                dragged.parentNode.removeChild(dragged);
-                event.target.appendChild(dragged);
-                groupStudent.get(fromGroup).delete(dragged.id);
-                groupStudent.get(key).add(dragged.id);
+            event.target.style.backgroundColor = 'transparent';
+            const dragged = document.getElementById(event.dataTransfer.getData('text'));
+            console.log(groupStudent);
+
+            groupStudent.get(dragged.parentNode.id).delete(dragged.id);
+            groupStudent.get(event.target.id).add(dragged.id);
+
+            dragged.parentNode.removeChild(dragged);
+            event.target.appendChild(dragged);
         });
         for (const name of groupStudent.get(key).values()) {
-            thisGroup.innerHTML += `<div id=${name} draggable=true>${name}</div>`;
-            const student = document.getElementById(name);
-            student.addEventListener('click', () => {
-                // dragged = event.target;
-                // fromGroup = key;
-                console.log('ok');
+            document.getElementById(name).addEventListener('dragstart', (event) => {
+                event.dataTransfer.setData('text', event.target.id);
             });
-            console.log(student);
         }
-        id++;
     }
 });
-

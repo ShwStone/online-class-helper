@@ -286,8 +286,8 @@ app.whenReady().then(() => {
             let gid = groupIndex.get(className);
             for (const lst of classSheetMap.get(className)) if (lst[0] != '姓名') {
                 if (gid != -1) {
-                    if (!groupStudent.has(lst[gid])) groupStudent.set(lst[gid], new Set());
-                    groupStudent.get(lst[gid]).add(lst[0]);
+                    if (!groupStudent.has(String(lst[gid]))) groupStudent.set(String(lst[gid]), new Set());
+                    groupStudent.get(String(lst[gid])).add(lst[0]);
                 } else {
                     if (!groupStudent.has('未设置分组的学生')) groupStudent.set('未设置分组的学生', new Set());
                     groupStudent.get('未设置分组的学生').add(lst[0]);
