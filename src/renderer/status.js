@@ -37,12 +37,14 @@ window.electronAPI.setFile(async (event, classNameList, fileName, classChosen) =
 })
 
 window.electronAPI.changeGroup(async (event, groupScore) => {
-    let groupHTML = '';
     let groupScoreList = Array.from(groupScore);
+    groups.innerHTML = '';
     for (const lst of groupScoreList) {
-        groupHTML += `${lst[0]}：${lst[1]}分 <button name='plus' class='smallbtn'>+1</button> <button name='minus' class='smallbtn'>-1</button></br>`;
+        groups.innerHTML += `${lst[0]}：${lst[1]}分 <button name='plus' class='smallbtn'>+1</button> <button name='minus' class='smallbtn'>-1</button></br>`;
     }
-    groups.innerHTML = groupHTML;
+    if (groups.innerHTML == '') {
+        groups.innerHTML = '未设置小组';
+    }
 
     let plusButton = document.getElementsByName('plus');
     for (let i = 0; i < plusButton.length; i++) {
