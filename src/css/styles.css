@@ -42,16 +42,58 @@ body {
     background-color: #008CBA;
     color: white;
 }
-input{
+
+.smallbtn {
+    border: 2px solid #0099CC;
+    background: transparent;
+    /* 给边框添加圆角 */
+    border-radius: 6px;
+    background-color: white;
+    color: black;
+    font-size: 14px;
+/*     font-weight: bold; */
+    /*padding: 6px 6px;*/
+}
+/* 悬停样式 */
+.smallbtn:hover {
+    background-color: #008CBA;
+    color: white;
+}
+
+.entry {
     outline-style: none ;
     border: 1px solid #ccc;
     border-radius: 3px;
     padding: 10px 10px;
     font-size: 14px;
 }
-input:focus{
+
+.entry:focus {
     border-color: #66afe9;
     outline: 0;
     -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+}
+
+.smallentry {
+    outline-style: none;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    padding: 4px 4px;
+    font-size: 16px;
+}
+
+.smallentry:focus {
+    border-color: #66afe9;
+    outline: 0;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
+}
+
+.name {
+    display: inline-block;
+}
+
+.group {
+    padding: 9px 72px 9px 72px;
 }
