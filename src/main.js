@@ -161,7 +161,7 @@ const creatStatusWindow = () => {
                     filters: [{ name: 'Excel文件', extensions: ['xlsx', 'xls', 'ods']}]
                 });
                 if (!canceled && filePaths[0] != filePath) {
-                    writeFiles();
+                    if (excelFile) writeFiles();
                     let tPath = filePath;
                     filePath = filePaths[0];
                     config.filePath = filePaths[0];
@@ -285,7 +285,7 @@ app.whenReady().then(() => {
     ipcMain.on('changeClass', (event, className, checked) => {
         classChosen.set(className, checked);
         for (const lst of classSheetMap.get(className)) {
-            if (lst[0] == '姓名') continue;
+            if (lst[0] == '姓名' || lst[groupIndex.get(className)] === '未设置分组的学生') continue;
             if (checked) {
                 groupScore.set(String(lst[groupIndex.get(className)]), 0);
             } else {
