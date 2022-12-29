@@ -6,7 +6,7 @@ const fs = require('fs');
 const ini = require('ini');
 
 let classChosen = new Map(), studentAttend = new Set();
-let groupIndex = new Map(), studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
+let groupIndex = new Map(), scoreIndex = new Map(), studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
 let excelFile = null, classSheetMap = new Map(), filePath = null, win = null;
 let closeToTray = true;
 let config = null;
@@ -49,13 +49,29 @@ function parseExcel() {
     try {
         excelFile = XLSX.readFile(filePath);
         for (const sheetName of excelFile.SheetNames) {
-            const sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
-            classSheetMap.set(sheetName, sheetAoa);
+            let sheetAoa = XLSX.utils.sheet_to_json(excelFile.Sheets[sheetName], {header: 1});
 
+            if (sheetAoa[0].indexOf('分数') === -1) {
+                sheetAoa[0].push('分数');
+                for (let i = 1; i < sheetAoa.length; i++) {
+                    sheetAoa[i].push(0);
+                }
+            }
+            if (sheetAoa[0].indexOf('小组') === -1) {
+                sheetAoa[0].push('小组');
+                for (let i = 1; i < sheetAoa.length; i++) {
+                    sheetAoa[i].push('未设置分组的学生');
+                }
+            }
             groupIndex.set(sheetName, sheetAoa[0].indexOf('小组'));
+            scoreIndex.set(sheetName, sheetAoa[0].indexOf('分数'));
+
             for (const lst of sheetAoa) if (lst[0] !== '姓名') {
                 studentAttend.add(lst[0]);
+                studentGroup.set(lst[0], String(lst[sheetAoa[0].indexOf('小组')]));
+                studentScore.set(lst[0], lst[sheetAoa[0].indexOf('分数')]);
             }
+            classSheetMap.set(sheetName, sheetAoa);
             classChosen.set(sheetName, false);
         }
         //关闭已有的子窗口，防止数据混乱
@@ -87,6 +103,17 @@ function initIni() {
 }
 
 function writeFiles() {
+    for (const sheetName of excelFile.SheetNames) {
+        for (let i in classSheetMap.get(sheetName)) {
+            let name = classSheetMap.get(sheetName)[i][0];
+            if (name !== '姓名') {
+                classSheetMap.get(sheetName)[i][groupIndex.get(sheetName)] = studentGroup.get(name);
+                classSheetMap.get(sheetName)[i][scoreIndex.get(sheetName)] = studentScore.get(name) + groupScore.get(studentGroup.get(name));
+            }
+        }
+        excelFile.Sheets[sheetName] = XLSX.utils.aoa_to_sheet(classSheetMap.get(sheetName));
+    }
+
     config.classChosen = [];
     if (filePath) {
         let tmp = excelFile.SheetNames;
@@ -179,7 +206,7 @@ const creatStatusWindow = () => {
                     await dialog.showMessageBox({message: '请先选择学生名单'});
                 }
                 else {
-                    creatSonWindow(win, 'rand-name', 400, 250);
+                    creatSonWindow(win, 'rand-name', 400, 300);
                 }
             },
         },
@@ -257,17 +284,15 @@ app.whenReady().then(() => {
 
     ipcMain.on('changeClass', (event, className, checked) => {
         classChosen.set(className, checked);
-        if (groupIndex.get(className) != -1) {
-            for (const lst of classSheetMap.get(className)) {
-                if (lst[0] == '姓名') continue;
-                if (checked) {
-                    groupScore.set(lst[groupIndex.get(className)], 0);
-                } else {
-                    groupScore.delete(lst[groupIndex.get(className)]);
-                }
+        for (const lst of classSheetMap.get(className)) {
+            if (lst[0] == '姓名') continue;
+            if (checked) {
+                groupScore.set(String(lst[groupIndex.get(className)]), 0);
+            } else {
+                groupScore.delete(String(lst[groupIndex.get(className)]));
             }
-            win.webContents.send('changeGroup', groupScore);
         }
+        win.webContents.send('changeGroup', groupScore);
     });
 
     ipcMain.handle('randStudent', async (event) => {
@@ -285,16 +310,31 @@ app.whenReady().then(() => {
         for (const className of classChosen.keys()) if (classChosen.get(className)) {
             let gid = groupIndex.get(className);
             for (const lst of classSheetMap.get(className)) if (lst[0] != '姓名') {
-                if (gid != -1) {
-                    if (!groupStudent.has(String(lst[gid]))) groupStudent.set(String(lst[gid]), new Set());
-                    groupStudent.get(String(lst[gid])).add(lst[0]);
-                } else {
-                    if (!groupStudent.has('未设置分组的学生')) groupStudent.set('未设置分组的学生', new Set());
-                    groupStudent.get('未设置分组的学生').add(lst[0]);
-                }
+                if (!groupStudent.has(studentGroup.get(lst[0]))) groupStudent.set(studentGroup.get(lst[0]), new Set());
+                groupStudent.get(studentGroup.get(lst[0])).add(lst[0]);
             }
         }
         return groupStudent;
+    });
+
+    ipcMain.on('setGroup', (event, groupStudent) => {
+        groupScore.clear();
+        for (const key of groupStudent.keys()) {
+            if (key !== '未设置分组的学生') {
+                groupScore.set(key, 0);
+            }
+            for (const name of groupStudent.get(key).values()) {
+                studentGroup.set(name, key);
+            }
+        }
+        for (const className of classChosen.keys()) if (classChosen.get(className)) {
+            let gid = groupIndex.get(className);
+            let tmp = classSheetMap.get(className);
+            for (let i in tmp) if (tmp[i][0] != '姓名') {
+                tmp[i][gid] = studentGroup.get(tmp[i][0]);
+            }
+            win.webContents.send('changeGroup', groupScore);
+        }
     });
 
     ipcMain.handle('checkStudent', async (event, checkInfo) => {
@@ -326,6 +366,13 @@ app.whenReady().then(() => {
     ipcMain.on('addScore', (event, group, score) => {
         groupScore.set(group, groupScore.get(group) + score);
         win.webContents.send('changeGroup', groupScore);
+    });
+    ipcMain.on('addScoreStudent', (event, name, score) => {
+        studentScore.set(name, studentScore.get(name) + score);
+        if (studentGroup.get(name) !== '未设置分组的学生') {
+            groupScore.set(studentGroup.get(name), groupScore.get(studentGroup.get(name)) + score);
+            win.webContents.send('changeGroup', groupScore);
+        }
     });
 
     app.on('activate', () => {

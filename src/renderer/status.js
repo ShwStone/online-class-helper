@@ -37,6 +37,7 @@ window.electronAPI.setFile(async (event, classNameList, fileName, classChosen) =
 })
 
 window.electronAPI.changeGroup(async (event, groupScore) => {
+    console.log(groupScore);
     let groupScoreList = Array.from(groupScore);
     groups.innerHTML = '';
     for (const lst of groupScoreList) {
