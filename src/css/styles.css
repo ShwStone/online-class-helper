@@ -50,8 +50,7 @@ body {
     border-radius: 6px;
     background-color: white;
     color: black;
-    font-size: 18px;
-    width: 36px;
+    font-size: 14px;
 /*     font-weight: bold; */
     /*padding: 6px 6px;*/
 }
@@ -91,10 +90,10 @@ body {
     box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6)
 }
 
-/*.name {
-    width: 72px;
+.name {
+    display: inline-block;
 }
 
 .group {
-    width: 216px;
-}*/
+    padding: 18px 72px 18px 72px;
+}

@@ -153,7 +153,7 @@ const creatStatusWindow = () => {
                 if (excelFile === null) {
                     await dialog.showMessageBox({message: '请先选择学生名单'});
                 } else {
-                    creatSonWindow(win, 'group');
+                    creatSonWindow(win, 'group', width = 600);
                 }
             },
         }
@@ -308,7 +308,7 @@ app.whenReady().then(() => {
                     tmp[i].push('未到');
                 } else {
                     studentAttend.add(tmp[i][0]);
-                    tmp[i].push(`发言${checkInfo.match(RegExp(tmp[i][0], 'g'))}`);
+                    tmp[i].push(`发言${checkInfo.match(RegExp(tmp[i][0], 'g')).length}`);
                 }
                 absentList.push([tmp[i][0], (checkInfo.match(RegExp(tmp[i][0], 'g')) || []).length]);
             } else {

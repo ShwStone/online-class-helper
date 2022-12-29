@@ -1,13 +1,13 @@
 const groups = document.getElementById('groups');
 let groupStudent = null;
 
-async function main() {
+async function readGroup() {
     groupStudent = await window.electronAPI.getGroup();
 }
 
-main().then(() => {groups.innerHTML = '';
+function makeHTML() {
+    groups.innerHTML = '';
     let id = 1;
-    // let tmpList = [];
     /*
      * 重要提示，以后写代码一定要注意：
      * 在修改 innerHTML 时，自己所有的孩子元素将会全部被重置，先前设置的EventListener将会失效。所以务必先渲染HTML再编写JavaScript.
@@ -15,12 +15,11 @@ main().then(() => {groups.innerHTML = '';
      *
      */
     for (const key of groupStudent.keys()) {
-        groups.innerHTML += `第${id}组：<input class='smallentry' value=${key} name='groupName'></br><div id=${key} class='group'></div>`;
+        groups.innerHTML += `第${id}组名称：<input class='smallentry' value=${key} name='groupName'> <button class='smallbtn' name='removegroup'>删除</button></br><div id=${key} class='group'></div>`;
         const thisGroup = document.getElementById(key);
         for (const name of groupStudent.get(key).values()) {
-            thisGroup.innerHTML += `<div id=${name} draggable='true' class='name'>${name}</div>`;
+            thisGroup.innerHTML += `<div id=${name} draggable='true' class='name'>${name}&nbsp;</div>`;
         }
-        thisGroup.innerHTML += `<br/>`;
         id++;
     }
     for (const key of groupStudent.keys()) {
@@ -54,4 +53,6 @@ main().then(() => {groups.innerHTML = '';
             });
         }
     }
-});
+}
+
+readGroup().then(makeHTML);
