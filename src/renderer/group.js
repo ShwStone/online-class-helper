@@ -105,4 +105,14 @@ document.getElementById('newgroup').addEventListener('click', (event) => {
     makeHTML();
 });
 
-document.getElementById('save').addEventListener('click', (event) => window.electronAPI.setGroup(groupStudent));
+document.getElementById('save').addEventListener('click', (event) => {
+    for (const g of groupStudent.keys()) {
+        const x = document.getElementById(`entry${g}`);
+        if (x && x.value != g) {
+            groupStudent.set(x.value, groupStudent.get(g));
+            console.log(x.value);
+            groupStudent.delete(g);
+        }
+    }
+    window.electronAPI.setGroup(groupStudent);
+});

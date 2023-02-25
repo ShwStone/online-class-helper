@@ -5,10 +5,11 @@ const sd = require('silly-datetime');
 const fs = require('fs');
 const ini = require('ini');
 
-let classChosen = new Map(), studentAttend = new Set();
+let classChosen = new Map(), studentAttend = new Map();
 let groupIndex = new Map(), scoreIndex = new Map(), studentGroup = new Map(), groupScore = new Map(), studentScore = new Map();
+let studentClass = new Map();
 let excelFile = null, classSheetMap = new Map(), filePath = null, win = null;
-let closeToTray = true;
+let closeToTray = false;
 let config = null;
 
 async function creatSonWindow(father, name, width = undefined, height = undefined) {
@@ -25,10 +26,10 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
     {
         label: app.name,
         submenu: [
-        {
-            click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
-            label: 'Github',
-        },
+        // {
+        //     click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
+        //     label: 'Github',
+        // },
         {
             click: () => sonWindow.webContents.openDevTools(),
             label: '开发者工具',
@@ -41,11 +42,13 @@ async function creatSonWindow(father, name, width = undefined, height = undefine
     sonWindow.once('ready-to-show', () => {
         sonWindow.setIcon(path.join(__dirname, '../images/icon.png'));
         sonWindow.show();
+        sonWindow.focus();
     })
 }
 
 function parseExcel() {
     classChosen.clear(); studentAttend.clear(); classSheetMap.clear();
+    groupIndex.clear(); groupScore.clear(); scoreIndex.clear();
     try {
         excelFile = XLSX.readFile(filePath);
         for (const sheetName of excelFile.SheetNames) {
@@ -67,7 +70,8 @@ function parseExcel() {
             scoreIndex.set(sheetName, sheetAoa[0].indexOf('分数'));
 
             for (const lst of sheetAoa) if (lst[0] !== '姓名') {
-                studentAttend.add(lst[0]);
+                studentAttend.set(lst[0], true);
+                studentClass.set(lst[0], sheetName);
                 studentGroup.set(lst[0], String(lst[sheetAoa[0].indexOf('小组')]));
                 studentScore.set(lst[0], lst[sheetAoa[0].indexOf('分数')]);
             }
@@ -141,10 +145,10 @@ const creatStatusWindow = () => {
     {
         label: app.name,
         submenu: [
-        {
-            click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
-            label: 'Github',
-        },
+        // {
+        //     click: () => shell.openExternal('https://github.com/Tianyuan-College/online-class-helper'),
+        //     label: 'Github',
+        // },
         {
             click: () => win.webContents.openDevTools(),
             label: '开发者工具',
@@ -291,17 +295,23 @@ app.whenReady().then(() => {
             } else {
                 groupScore.delete(String(lst[groupIndex.get(className)]));
             }
+            for (const s of studentAttend.keys()) {
+                studentAttend.set(s, true);
+            }
         }
         win.webContents.send('changeGroup', groupScore);
     });
 
     ipcMain.handle('randStudent', async (event) => {
-        if (studentAttend.size === 0) {
+        let tmps = [];
+        for (const s of studentAttend.keys()) if (studentAttend.get(s) && classChosen.get(studentClass.get(s))) {
+            tmps.push(s);
+        }
+        if (tmps.size === 0) {
             dialog.showMessageBox({message: '哎呀！没有人在听课！请查看班级是否选择正确，然后尝试重新签到。'});
             return '咕咕咕';
         } else {
-            const tmp = Array.from(studentAttend);
-            return tmp[Math.floor(tmp.length * Math.random())];
+            return tmps[Math.floor(tmps.length * Math.random())];
         }
     });
 
@@ -344,10 +354,10 @@ app.whenReady().then(() => {
             tmp = classSheetMap.get(className);
             for (let i in tmp) if (tmp[i][0] !== '姓名') {
                 if (checkInfo.indexOf(tmp[i][0]) === -1) {
-                    studentAttend.delete(tmp[i][0]);
+                    studentAttend.set(tmp[i][0], false);
                     tmp[i].push('未到');
                 } else {
-                    studentAttend.add(tmp[i][0]);
+                    studentAttend.set(tmp[i][0], true);
                     tmp[i].push(`发言${checkInfo.match(RegExp(tmp[i][0], 'g')).length}`);
                 }
                 absentList.push([tmp[i][0], (checkInfo.match(RegExp(tmp[i][0], 'g')) || []).length]);
