@@ -14,8 +14,8 @@
 
 ```sh
 git clone https://github.com/TianYuan-College/online-class-helper
-npm install
-npm run dev
+yarn
+yarn dev
 ```
 
 ## [releases](https://github.com/TianYuan-College/online-class-helper/releases)
@@ -26,9 +26,7 @@ npm run dev
 
 ## 贡献方法
 
-组织内成员：直接在 dev 分支上做改动。**不要动 master 分支。**
-
-路过的大佬：在 master 上提交 PR。
+在 master 上提交 PR。
 
 ### 遵循的规则
 
@@ -42,25 +40,24 @@ npm run dev
 
 如果你可以进行前端开发，考虑下列目标：
 
-- 学生分组（随机分组或导入），支持在点名后为小组加分。
 - 教案管理。
 - 写一个爬虫，读取某个题库，并实现随机出题。
 - 将学生信息用面向对象方法重写。
 
 ### 构建软件包
 
-注意，如果你执行过 `npm run dev` 或 `npm run start` ，工作目录下会有 `config.ini` 生成，打包时它将会被一起打包。
+注意，如果你执行过 `yarn dev` 或 `yarn start` ，工作目录下会有 `config.ini` 生成，打包时它将会被一起打包。
 
 你应该删除 `config.ini` 后再进行构建。
 
 默认方法：
 
 ```sh
-npm run make
+yarn make
 ```
 
 跨平台构建：
 
 ```sh
-npm run make -- --platform target-platform
+yarn make -- --platform target-platform
 ```
